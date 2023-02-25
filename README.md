@@ -16,6 +16,19 @@ Open "Extensions" -> "Install from URL" paste the link below
 ### LAVIS
 If you receive the message "Can't install salesforce-lavis" please follow the steps below.
 
+Windows: Open powershell on your-stable-diffusion-webui location and type
+
+    Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force 
+    ./venv/scripts/activate
+    pip install salesforce-lavis
+    
+Mac: Open terminal on your stabl-diffusion-webui location and type
+
+    source venv/bin/activate
+    pip install salesforce-lavis
+
+Build from source
+
 [C++ build environment is required](#install-build-tools)
 
     git clone https://github.com/salesforce/LAVIS.git

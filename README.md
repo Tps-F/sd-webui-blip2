@@ -15,11 +15,12 @@ Open "Extensions" -> "Install from URL" paste the link below
 ### LAVIS
 If you receive the message "Can't install salesforce-lavis" please follow the steps below.
 
-**C++ build environment is required**
+[C++ build environment is required](#install-build-tools)
 
     git clone https://github.com/salesforce/LAVIS.git
     cd LAVIS
     pip install -e .
+    
 
 
 ## Usage
@@ -39,6 +40,25 @@ Information about the parameters is as follows
 ## Other Information
 
 If there are any other features you need, please report them in an issue!
+
+### Install Build Tools
+Windows
+
+    winget install Microsoft.VisualStudio.2022.BuildTools
+
+
+Mac
+    
+    xcode-select --install
+    brew install cmake
+    
+Linux
+
+    sudo apt-get install cmake
+or
+
+    pacman -Syu cmake
+    
 
 ## License
 

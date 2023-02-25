@@ -45,12 +45,6 @@ If there are any other features you need, please report them in an issue!
 Windows
 
     winget install Microsoft.VisualStudio.2022.BuildTools
-
-
-Mac
-    
-    xcode-select --install
-    brew install cmake
     
 Linux
 
@@ -59,6 +53,10 @@ or
 
     pacman -Syu cmake
     
+Mac(has some issue)
+    
+    xcode-select --install
+    brew install cmake
 
 ## License
 

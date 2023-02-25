@@ -1,0 +1,34 @@
+{
+    "model": [
+        {
+            "name": "blip2_t5",
+            "type": "pretrain_flant5xxl"
+        },
+        {
+            "name": "blip2_opt",
+            "type": "pretrain_opt2.7b"
+        },
+        {
+            "name": "blip2_opt",
+            "type": "pretrain_opt6.7b"
+        },
+        {
+            "name": "blip2_opt",
+            "type": "caption_coco_opt2.7b"
+        },
+        {
+            "name": "blip2_opt",
+            "type": "caption_coco_opt6.7b"
+        },
+        {
+            "name": "blip2_t5",
+            "type": "pretrain_flant5xl"
+        },
+        {
+            "name": "blip2_t5",
+            "type": "caption_coco_flant5xl"
+        }
+    ]
+}
+
+

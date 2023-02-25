@@ -5,6 +5,7 @@
 sd-webui-blip2 is a stable diffusion extension that generates image captions with blip2
 Using that caption as a prompt may help you get closer to your ideal picture.
 
+![image](https://user-images.githubusercontent.com/63702646/221370369-1e418ede-17b2-47ad-adf4-36f2e0f44f97.png)
 
 ## Installation
 ### Extensions

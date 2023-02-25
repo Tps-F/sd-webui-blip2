@@ -85,6 +85,7 @@ def gen_caption(image, caption_type, length_penalty, repetition_penalty, tempera
         )
 
     caption = "\n".join(caption)
+    print(f"Finish ! caption:{caption}")
 
     return caption
 

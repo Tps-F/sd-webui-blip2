@@ -10,6 +10,8 @@ Using that caption as a prompt may help you get closer to your ideal picture.
 ### Extensions
 Open "Extensions" -> "Install from URL" paste the link below
 
+    https://github.com/Tps-F/sd-webui-blip2.git
+       
 ### LAVIS
 If you receive the message "Can't install salesforce-lavis" please follow the steps below.
 

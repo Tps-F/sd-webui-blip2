@@ -12,6 +12,8 @@ Using that caption as a prompt may help you get closer to your ideal picture.
 Open "Extensions" -> "Install from URL" paste the link below
 
     https://github.com/Tps-F/sd-webui-blip2.git
+
+[On Mac, sometimes need action](#fix-issue)
        
 ### LAVIS
 If you receive the message "Can't install salesforce-lavis" please follow the steps below.
@@ -35,8 +37,6 @@ Build from source
     cd LAVIS
     pip install -e .
     
-
-
 ## Usage
 
 First select a model, If that model does not exist, the download will begin. Please be patient...
@@ -71,6 +71,25 @@ Mac(has some issue)
     
     xcode-select --install
     brew install cmake
+
+### Fix Issue
+
+> ImportError: cannot import name 'ALL_LAYERNORM_LAYERS' from 'transformers.pytorch_utils' (/Users/ftps/stable-diffusion-webui/venv/lib/python3.10/site-packages/transformers/pytorch_utils.py)
+
+Open stable-diffusion-webui/venv/lib/python3.10/site-packages/transformers/pytorch_utils.py and add line
+
+    ALL_LAYERNORM_LAYERS = [nn.LayerNorm]
+
+Before this line
+
+    logger = logging.get_logger(__name__)
+
+> PermissionError: [Errno 13] Permission denied: '/Users/ftps/.cache/torch/hub/checkpoints
+
+open Terminal and type
+
+    chmod +x .cache
+
 
 ## License
 

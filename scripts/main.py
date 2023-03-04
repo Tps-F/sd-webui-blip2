@@ -51,10 +51,12 @@ def load_model(model_type):
         data["model"][model_type]["name"],
         data["model"][model_type]["type"],
     )
+
     if modeltype != model_history:
         global model, vis_processors
 
         print(f"loading model {modeltype}...It takes time.")
+
         model, vis_processors, _ = load_model_and_preprocess(
             name=name, model_type=modeltype, is_eval=True, device=get_device()
         )
@@ -62,32 +64,40 @@ def load_model(model_type):
 
         model_history = modeltype
 
+    else:
+        pass
+
     return model, vis_processors
 
 
 def gen_caption(image, caption_type, length_penalty, repetition_penalty, temperature):
-    print("generating...")
+
     device = get_device()
-    image = vis_processors["eval"](image).unsqueeze(0).to(device)
-    if caption_type == "Beam Search":
-        caption = model.generate(
-            {"image": image},
-            length_penalty=length_penalty,
-            repetition_penalty=repetition_penalty,
-        )
+    try:
+        image = vis_processors["eval"](image).unsqueeze(0).to(device)
+    except KeyError:
+        print("Please select models!")
     else:
-        caption = model.generate(
-            {"image": image},
-            use_nucleus_sampling=True,
-            num_captions=3,
-            repetition_penalty=repetition_penalty,
-            temperature=temperature,
-        )
+        print("generating...")
+        if caption_type == "Beam Search":
+            caption = model.generate(
+                {"image": image},
+                length_penalty=length_penalty,
+                repetition_penalty=repetition_penalty,
+            )
+        else:
+            caption = model.generate(
+                {"image": image},
+                use_nucleus_sampling=True,
+                num_captions=3,
+                repetition_penalty=repetition_penalty,
+                temperature=temperature,
+            )
 
-    caption = "\n".join(caption)
-    print(f"Finish ! caption:{caption}")
+        caption = "\n".join(caption)
+        print(f"Finish! caption:{caption}")
 
-    return caption
+        return caption
 
 
 class Script(scripts.Script):

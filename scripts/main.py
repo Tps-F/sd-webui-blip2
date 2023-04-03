@@ -70,6 +70,13 @@ def load_model(model_type):
     return model, vis_processors
 
 
+def unload_model():
+    print(f"unloading model ")
+    global model, vis_processors
+    del model, vis_processors
+    model, vis_processors = "", {}
+    
+    
 def gen_caption(image, caption_type, length_penalty, repetition_penalty, temperature):
 
     device = get_device()
@@ -122,6 +129,9 @@ def on_ui_tabs():
                 model_typelist, label="model list", interactive=True, type="index"
             )
             with gr.Row():
+                load_model_btn = gr.Button("Load model")
+                unload_model_btn = gr.Button("Unload model")
+            with gr.Row():
                 with gr.Column():
                     caption_type = gr.Radio(
                         choices=["Beam Search", "Nucleus Sampling"],
@@ -160,7 +170,11 @@ def on_ui_tabs():
                             interactive=True,
                         )
                     btn_caption = gr.Button("Generate Caption", variant="primary")
-                input_image = gr.Image(label="Image", type="pil")
+                with gr.Tab("single image"):
+                    input_image = gr.Image(label="Image", type="pil")
+                with gr.Tab("batch process"):
+                    input_dir = gr.Textbox("Input Directory")
+                    output_dir = gr.Textbox("Output Directory")
             output_text = gr.Textbox(label="Answer", lines=5, interactive=False)
             with gr.Row():
                 send_to_buttons = (
@@ -173,7 +187,9 @@ def on_ui_tabs():
             send_to_buttons, "", output_text
         )
 
-        model_type.change(load_model, inputs=[model_type])
+        # model_type.change(load_model, inputs=[model_type])
+        load_model_btn.click(load_model, inputs=[model_type])
+        unload_model_btn.click(unload_model)
 
         btn_caption.click(
             gen_caption,

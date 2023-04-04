@@ -1,3 +1,4 @@
+import csv
 import glob
 import json
 import os
@@ -73,13 +74,32 @@ def load_model(model_type):
 
 
 def unload_model():
-    print(f"unloading model ")
+    print("unloading model")
     global model, vis_processors
     del model, vis_processors
     model, vis_processors = "", {}
+    print("Finish!")
 
 
-def prepare(image, process_type, input_dir, output_dir, extension, caption_type, length_penalty, repetition_penalty, temperature):
+def save_csv_f(caption, output_dir, image_filename):
+    type = 'a' if os.path.exists(f'{output_dir}/blip2_caption.csv') else 'x'
+    with open(f'{output_dir}/blip2_caption.csv', type, newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        csvlist = [image_filename[0]]
+        csvlist.extend(caption.splitlines())
+        writer.writerow(csvlist)
+
+
+def save_txt_f(caption, output_dir, image_filename):
+    if os.path.exists(f'{output_dir}/{image_filename[0]}.txt'):
+        f = open(f'{output_dir}/{image_filename[0]}.txt', 'w', encoding='utf-8')
+    else:
+        f = open(f'{output_dir}/{image_filename[0]}.txt', 'x', encoding='utf-8')
+    f.write(f'{caption}\n')
+    f.close()
+        
+        
+def prepare(image, process_type, input_dir, output_dir, extension, save_csv, save_txt, caption_type, length_penalty, repetition_penalty, temperature):
     if process_type == "Single image":
         caption = gen_caption(image, process_type, caption_type, length_penalty, repetition_penalty, temperature)
         return caption
@@ -94,15 +114,14 @@ def prepare(image, process_type, input_dir, output_dir, extension, caption_type,
             image_filename = os.path.splitext(os.path.basename(image))
             raw = Image.open(image).convert('RGB')
             caption = gen_caption(raw, process_type, caption_type, length_penalty, repetition_penalty, temperature)
-            print(caption)
-            if os.path.exists(f'{input_dir}/{image_filename[0]}.txt'):
-                f = open(f'{input_dir}/{image_filename[0]}.txt', 'w')
-                f.write(f'{caption}\n')
-                f.close()
+            if not save_csv and not save_txt:
+                save_csv_f(caption, output_dir, image_filename)
             else:
-                f = open(f'{input_dir}/{image_filename[0]}.txt', 'x')
-                f.write(f'{caption}\n')
-                f.close()
+                if save_csv:
+                    save_csv_f(caption, output_dir, image_filename)
+                if save_txt:
+                    save_txt_f(caption, output_dir, image_filename)
+               
                 
         return "Finish!"
     
@@ -213,6 +232,10 @@ def on_ui_tabs():
                     input_dir = gr.Textbox(label="Input Directory", interactive=True)
                     output_dir = gr.Textbox(label="Output Directory", interactive=True)
                     extension = gr.Textbox(label="File extensions", value=".png, .jpg", interactive=True)
+                    with gr.Row():
+                        save_csv = gr.Checkbox(label="Save as csv(default)", value=True, interactive=True)
+                        save_txt = gr.Checkbox(label="Save as txt", interactive=True)
+                    
                     gr.Markdown("#### If you do not know the path, try opening the folder in Explorer and copying the path")
                     
 
@@ -240,6 +263,8 @@ def on_ui_tabs():
                 input_dir,
                 output_dir,
                 extension,
+                save_csv,
+                save_txt,
                 caption_type,
                 length_penalty,
                 repetition_penalty,

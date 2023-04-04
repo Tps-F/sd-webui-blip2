@@ -215,6 +215,7 @@ def on_ui_tabs():
                     extension = gr.Textbox(label="File extensions", value=".png, .jpg", interactive=True)
                     gr.Markdown("#### If you do not know the path, try opening the folder in Explorer and copying the path")
                     
+
             output_text = gr.Textbox(label="Answer", lines=5, interactive=False)
             with gr.Row():
                 send_to_buttons = (

@@ -1,5 +1,7 @@
+import glob
 import json
 import os
+from pathlib import Path
 
 import cv2
 import gradio as gr
@@ -70,7 +72,42 @@ def load_model(model_type):
     return model, vis_processors
 
 
-def gen_caption(image, caption_type, length_penalty, repetition_penalty, temperature):
+def unload_model():
+    print(f"unloading model ")
+    global model, vis_processors
+    del model, vis_processors
+    model, vis_processors = "", {}
+
+
+def prepare(image, process_type, input_dir, output_dir, extension, caption_type, length_penalty, repetition_penalty, temperature):
+    if process_type == "Single image":
+        caption = gen_caption(image, process_type, caption_type, length_penalty, repetition_penalty, temperature)
+        return caption
+    else:
+        input_dir = Path(input_dir)
+        output_dir = Path(output_dir)
+        # images = glob.glob(f'{input_dir}/*.png')
+        extension = extension.split(", ")
+        images = [i for i in Path(input_dir).glob('**/*.*') if i.suffix in extension]
+
+        for image in images:
+            image_filename = os.path.splitext(os.path.basename(image))
+            raw = Image.open(image).convert('RGB')
+            caption = gen_caption(raw, process_type, caption_type, length_penalty, repetition_penalty, temperature)
+            print(caption)
+            if os.path.exists(f'{input_dir}/{image_filename[0]}.txt'):
+                f = open(f'{input_dir}/{image_filename[0]}.txt', 'w')
+                f.write(f'{caption}\n')
+                f.close()
+            else:
+                f = open(f'{input_dir}/{image_filename[0]}.txt', 'x')
+                f.write(f'{caption}\n')
+                f.close()
+                
+        return "Finish!"
+    
+                
+def gen_caption(image, process_type, caption_type, length_penalty, repetition_penalty, temperature):
 
     device = get_device()
     try:
@@ -122,13 +159,23 @@ def on_ui_tabs():
                 model_typelist, label="model list", interactive=True, type="index"
             )
             with gr.Row():
+                load_model_btn = gr.Button("Load model")
+                unload_model_btn = gr.Button("Unload model")
+            with gr.Row():
                 with gr.Column():
-                    caption_type = gr.Radio(
-                        choices=["Beam Search", "Nucleus Sampling"],
-                        label="Type",
-                        value="Beam Search",
-                        interactive=True,
-                    )
+                    with gr.Row():
+                        process_type = gr.Radio(
+                            choices=["Single image", "Batch process"],
+                            label="Process type",
+                            value="Single image",
+                            interactive=True
+                        )
+                        caption_type = gr.Radio(
+                            choices=["Beam Search", "Nucleus Sampling"],
+                            label="Caption type",
+                            value="Beam Search",
+                            interactive=True,
+                        )
                     with gr.Tab("Beam Search"):
                         length_penalty = gr.Slider(
                             label="Length Penalty",
@@ -160,7 +207,14 @@ def on_ui_tabs():
                             interactive=True,
                         )
                     btn_caption = gr.Button("Generate Caption", variant="primary")
-                input_image = gr.Image(label="Image", type="pil")
+                with gr.Tab("single image"):
+                    input_image = gr.Image(label="Image", type="pil")
+                with gr.Tab("batch process"):
+                    input_dir = gr.Textbox(label="Input Directory", interactive=True)
+                    output_dir = gr.Textbox(label="Output Directory", interactive=True)
+                    extension = gr.Textbox(label="File extensions", value=".png, .jpg", interactive=True)
+                    gr.Markdown("#### If you do not know the path, try opening the folder in Explorer and copying the path")
+                    
             output_text = gr.Textbox(label="Answer", lines=5, interactive=False)
             with gr.Row():
                 send_to_buttons = (
@@ -173,12 +227,18 @@ def on_ui_tabs():
             send_to_buttons, "", output_text
         )
 
-        model_type.change(load_model, inputs=[model_type])
+        # model_type.change(load_model, inputs=[model_type])
+        load_model_btn.click(load_model, inputs=[model_type])
+        unload_model_btn.click(unload_model)
 
         btn_caption.click(
-            gen_caption,
+            prepare,
             inputs=[
                 input_image,
+                process_type,
+                input_dir,
+                output_dir,
+                extension,
                 caption_type,
                 length_penalty,
                 repetition_penalty,

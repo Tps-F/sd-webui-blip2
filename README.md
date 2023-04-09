@@ -63,6 +63,14 @@ Windows
 
     winget install Microsoft.VisualStudio.2022.BuildTools
     
+and Please install Windows 11 SDK from 
+
+     Visual Studio Installer > Modify > Check Desktop development
+
+or Download from
+    
+    https://developer.microsoft.com/ja-jp/windows/downloads/windows-sdk/
+    
 Linux
 
     sudo apt-get install cmake

@@ -77,6 +77,11 @@ def unload_model():
     print("unloading model")
     global model, vis_processors
     del model, vis_processors
+    device =  get_device() 
+    if device == 'mps':
+        torch.mps.empty_cache()
+    else:
+        torch.cuda.empty_cache()
     model, vis_processors = "", {}
     print("Finish!")
 

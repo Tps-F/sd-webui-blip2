@@ -1,4 +1,4 @@
-name: Black Formatter
+name: Black
 
 on: [push, pull_request]
 
@@ -7,9 +7,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: psf/black@stable
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
         with:
-          options: "--check --verbose"
-          src: "."
-          jupyter: true
-          version: "21.5b1"
+          python-version: ${{ matrix.python-version }}
+      - run: pip install --upgrade pip
+      - run: pip install black[jupyter]
+      - run: black --diff --check $(git ls-files '*.py' 'ipynb')

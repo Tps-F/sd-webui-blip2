@@ -3,7 +3,7 @@ name: Black
 on: [push, pull_request]
 
 jobs:
-  lint:
+  format_code:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

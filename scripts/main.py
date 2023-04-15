@@ -23,10 +23,9 @@ model, vis_processors = "", {}
 def get_device():
     if torch.cuda.is_available():
         return "cuda"
-    elif torch.backends.mps.is_available():
-        return "mps"
     else:
         return "cpu"
+    # Now blip2 is not support mps. I'll make PR
 
 
 def load_data(file_name: str = f"{scripts.basedir()}/model.json") -> dict:

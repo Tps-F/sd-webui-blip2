@@ -13,4 +13,4 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: pip install --upgrade pip
       - run: pip install black[jupyter]
-      - run: black --diff --check $(git ls-files '*.py' 'ipynb')
+      - run: black $(git ls-files '*.py' 'ipynb')

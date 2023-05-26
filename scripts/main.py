@@ -53,7 +53,7 @@ def load_model(model_type):
     global model
     if model != "":
         unload_model()
-    
+
     global model_history
     data = load_data()
     name, modeltype = (
@@ -83,8 +83,8 @@ def unload_model():
     print("unloading model")
     global model, vis_processors, txt_processors
     del model, vis_processors, txt_processors
-    device =  get_device() 
-    if device == 'mps':
+    device = get_device()
+    if device == "mps":
         torch.mps.empty_cache()
     else:
         torch.cuda.empty_cache()
@@ -93,8 +93,10 @@ def unload_model():
 
 
 def save_csv_f(caption, output_dir, image_filename):
-    type = 'a' if os.path.exists(f'{output_dir}/blip2_caption.csv') else 'x'
-    with open(f'{output_dir}/blip2_caption.csv', type, newline='', encoding='utf-8') as f:
+    type = "a" if os.path.exists(f"{output_dir}/blip2_caption.csv") else "x"
+    with open(
+        f"{output_dir}/blip2_caption.csv", type, newline="", encoding="utf-8"
+    ) as f:
         writer = csv.writer(f)
         csvlist = [image_filename[0]]
         csvlist.extend(caption.splitlines())
@@ -102,35 +104,132 @@ def save_csv_f(caption, output_dir, image_filename):
 
 
 def save_txt_f(caption, output_dir, image_filename):
-    if os.path.exists(f'{output_dir}/{image_filename[0]}.txt'):
-        f = open(f'{output_dir}/{image_filename[0]}.txt', 'w', encoding='utf-8')
+    if os.path.exists(f"{output_dir}/{image_filename[0]}.txt"):
+        f = open(f"{output_dir}/{image_filename[0]}.txt", "w", encoding="utf-8")
     else:
-        f = open(f'{output_dir}/{image_filename[0]}.txt', 'x', encoding='utf-8')
-    f.write(f'{caption}\n')
+        f = open(f"{output_dir}/{image_filename[0]}.txt", "x", encoding="utf-8")
+    f.write(f"{caption}\n")
     f.close()
-        
-def respond(message, chat_history, input_image,input_dir,output_dir,extension,save_csv,save_txt,nucleus_sampling,length_penalty,repetition_penalty,temperature,num_beams,max_length,min_length,top_p,num_captions,num_captions_VQA,num_patches,top_k):
+
+
+def respond(
+    message,
+    chat_history,
+    input_image,
+    input_dir,
+    output_dir,
+    extension,
+    save_csv,
+    save_txt,
+    nucleus_sampling,
+    length_penalty,
+    repetition_penalty,
+    temperature,
+    num_beams,
+    max_length,
+    min_length,
+    top_p,
+    num_captions,
+    num_captions_VQA,
+    num_patches,
+    top_k,
+):
     prompt = chat_history_to_prompt(chat_history) + "Question: " + message + " Answer:"
-    response = prepare(input_image,False,input_dir,output_dir,extension,save_csv,save_txt,nucleus_sampling,length_penalty,repetition_penalty,temperature,num_beams,max_length,min_length,top_p,num_captions,prompt,False,num_captions_VQA,num_patches,top_k)
+    response = prepare(
+        input_image,
+        False,
+        input_dir,
+        output_dir,
+        extension,
+        save_csv,
+        save_txt,
+        nucleus_sampling,
+        length_penalty,
+        repetition_penalty,
+        temperature,
+        num_beams,
+        max_length,
+        min_length,
+        top_p,
+        num_captions,
+        prompt,
+        False,
+        num_captions_VQA,
+        num_patches,
+        top_k,
+    )
     chat_history.append((message, response))
     return "", chat_history
 
-def prepare(image, batch, input_dir, output_dir, extension, save_csv, save_txt, nucleus_sampling, length_penalty, repetition_penalty, temperature, num_beams, max_length, min_length, top_p, num_captions, prompt, prepend_prompt,num_captions_VQA,num_patches,top_k):
+
+def prepare(
+    image,
+    batch,
+    input_dir,
+    output_dir,
+    extension,
+    save_csv,
+    save_txt,
+    nucleus_sampling,
+    length_penalty,
+    repetition_penalty,
+    temperature,
+    num_beams,
+    max_length,
+    min_length,
+    top_p,
+    num_captions,
+    prompt,
+    prepend_prompt,
+    num_captions_VQA,
+    num_patches,
+    top_k,
+):
     if not batch:
-        caption = gen_caption(image, nucleus_sampling, length_penalty, repetition_penalty, temperature, num_beams, max_length, min_length, top_p, num_captions, prompt,num_captions_VQA,num_patches,top_k)
-        if prompt is not None and prepend_prompt :
+        caption = gen_caption(
+            image,
+            nucleus_sampling,
+            length_penalty,
+            repetition_penalty,
+            temperature,
+            num_beams,
+            max_length,
+            min_length,
+            top_p,
+            num_captions,
+            prompt,
+            num_captions_VQA,
+            num_patches,
+            top_k,
+        )
+        if prompt is not None and prepend_prompt:
             caption = prompt + " " + caption
         return caption
     else:
         input_dir = Path(input_dir)
         output_dir = Path(output_dir)
         extension = extension.split(", ")
-        images = [i for i in Path(input_dir).glob('**/*.*') if i.suffix in extension]
+        images = [i for i in Path(input_dir).glob("**/*.*") if i.suffix in extension]
 
         for image in images:
             image_filename = os.path.splitext(os.path.basename(image))
-            raw = Image.open(image).convert('RGB')
-            caption = gen_caption(raw, nucleus_sampling, length_penalty, repetition_penalty, temperature, num_beams, max_length, min_length, top_p, num_captions, prompt,num_captions_VQA,num_patches,top_k)
+            raw = Image.open(image).convert("RGB")
+            caption = gen_caption(
+                raw,
+                nucleus_sampling,
+                length_penalty,
+                repetition_penalty,
+                temperature,
+                num_beams,
+                max_length,
+                min_length,
+                top_p,
+                num_captions,
+                prompt,
+                num_captions_VQA,
+                num_patches,
+                top_k,
+            )
             if prompt is not None and prepend_prompt:
                 caption = prompt + " " + caption
             if not save_csv and not save_txt:
@@ -142,10 +241,24 @@ def prepare(image, batch, input_dir, output_dir, extension, save_csv, save_txt, 
                     save_txt_f(caption, output_dir, image_filename)
 
         return "Finish!"
-    
-                
-def gen_caption(image, nucleus_sampling, length_penalty, repetition_penalty, temperature, num_beams, max_length, min_length, top_p, num_captions, prompt, num_captions_VQA, num_patches, top_k):
 
+
+def gen_caption(
+    image,
+    nucleus_sampling,
+    length_penalty,
+    repetition_penalty,
+    temperature,
+    num_beams,
+    max_length,
+    min_length,
+    top_p,
+    num_captions,
+    prompt,
+    num_captions_VQA,
+    num_patches,
+    top_k,
+):
     device = get_device()
     try:
         image = vis_processors["eval"](image).unsqueeze(0).to(device)
@@ -158,7 +271,7 @@ def gen_caption(image, nucleus_sampling, length_penalty, repetition_penalty, tem
             print("prompt", prompt)
             imgPrompt["prompt"] = prompt
 
-        if hasattr(model, 'generate'):
+        if hasattr(model, "generate"):
             caption = model.generate(
                 imgPrompt,
                 use_nucleus_sampling=nucleus_sampling,
@@ -168,23 +281,31 @@ def gen_caption(image, nucleus_sampling, length_penalty, repetition_penalty, tem
                 top_p=top_p,
                 repetition_penalty=repetition_penalty,
                 length_penalty=length_penalty,
-                num_captions=int(1 if nucleus_sampling else num_captions if (num_captions <= num_beams and num_beams > 1) else num_beams - 1),
+                num_captions=int(
+                    1
+                    if nucleus_sampling
+                    else num_captions
+                    if (num_captions <= num_beams and num_beams > 1)
+                    else num_beams - 1
+                ),
                 temperature=temperature,
             )
-        elif hasattr(model, 'predict_answers'):
+        elif hasattr(model, "predict_answers"):
             print("predict_answers")
             question = txt_processors["eval"](prompt)
             caption = model.predict_answers(
-                samples={"image": image, "text_input": question}, 
-                inference_method="generate", 
-                num_captions=int(num_captions_VQA), 
-                num_patches=int(num_patches), 
-                cap_max_length=int(max_length), 
+                samples={"image": image, "text_input": question},
+                inference_method="generate",
+                num_captions=int(num_captions_VQA),
+                num_patches=int(num_patches),
+                cap_max_length=int(max_length),
                 cap_min_length=int(min_length),
-                top_k=top_k
-            ) 
+                top_k=top_k,
+            )
         else:
-            print("ERR(blip2-gen_caption): Model has neither a generate nor a predict_answers method.")
+            print(
+                "ERR(blip2-gen_caption): Model has neither a generate nor a predict_answers method."
+            )
 
         caption = "\n".join(caption)
         print(f"Finish! caption:{caption}")
@@ -253,7 +374,7 @@ def on_ui_tabs():
                         step=1,
                         value=5,
                         interactive=True,
-                    )                    
+                    )
                     temperature = gr.Slider(
                         label="Temperature",
                         minimum=0.01,
@@ -286,9 +407,10 @@ def on_ui_tabs():
                         interactive=True,
                     )
                     gr.Markdown(
-                    """
+                        """
                     #### VQA specific model settings
-                    """)
+                    """
+                    )
                     num_captions_VQA = gr.Number(
                         label="Number of Captions VQA",
                         minimum=1,
@@ -342,7 +464,7 @@ def on_ui_tabs():
                     with gr.Row():
                         with gr.Tab("single image"):
                             input_image = gr.Image(label="Image", type="pil")
-                            
+
                             gr.Markdown("### Q&A")
                             chatbot = gr.Chatbot(label="Q&A")
                             msg = gr.Textbox(label="ChatBox (hit enter to submit)")
@@ -350,25 +472,54 @@ def on_ui_tabs():
 
                             with gr.Row():
                                 gr.Markdown("""### Caption""")
-                                prepend_single = gr.Checkbox(label="Prepend prompt to answer", interactive=True)
-                            input_text_single = gr.Textbox(label="Prompt (optional)", lines=2, interactive=True)
-                            output_text_single = gr.Textbox(label="Answer", lines=5, interactive=False)
-                            btn_caption_single = gr.Button("Generate Caption", variant="primary")
+                                prepend_single = gr.Checkbox(
+                                    label="Prepend prompt to answer", interactive=True
+                                )
+                            input_text_single = gr.Textbox(
+                                label="Prompt (optional)", lines=2, interactive=True
+                            )
+                            output_text_single = gr.Textbox(
+                                label="Answer", lines=5, interactive=False
+                            )
+                            btn_caption_single = gr.Button(
+                                "Generate Caption", variant="primary"
+                            )
 
                         with gr.Tab("batch process"):
-                            input_dir = gr.Textbox(label="Input Directory", interactive=True)
-                            output_dir = gr.Textbox(label="Output Directory", interactive=True)
-                            extension = gr.Textbox(label="File extensions", value=".png, .jpg", interactive=True)
+                            input_dir = gr.Textbox(
+                                label="Input Directory", interactive=True
+                            )
+                            output_dir = gr.Textbox(
+                                label="Output Directory", interactive=True
+                            )
+                            extension = gr.Textbox(
+                                label="File extensions",
+                                value=".png, .jpg",
+                                interactive=True,
+                            )
                             with gr.Row():
-                                save_csv = gr.Checkbox(label="Save as csv(default)", value=True, interactive=True)
-                                save_txt = gr.Checkbox(label="Save as txt", interactive=True)
-                                prepend_batch = gr.Checkbox(label="Prepend prompt to results", interactive=True)
+                                save_csv = gr.Checkbox(
+                                    label="Save as csv(default)",
+                                    value=True,
+                                    interactive=True,
+                                )
+                                save_txt = gr.Checkbox(
+                                    label="Save as txt", interactive=True
+                                )
+                                prepend_batch = gr.Checkbox(
+                                    label="Prepend prompt to results", interactive=True
+                                )
 
-                            input_text_batch = gr.Textbox(label="Prompt (optional)", lines=2, interactive=True)
-                            btn_caption_batch = gr.Button("Generate Captions", variant="primary")
-                            output_text_batch = gr.Textbox(label="Response", lines=1, interactive=False)
-                
-                                
+                            input_text_batch = gr.Textbox(
+                                label="Prompt (optional)", lines=2, interactive=True
+                            )
+                            btn_caption_batch = gr.Button(
+                                "Generate Captions", variant="primary"
+                            )
+                            output_text_batch = gr.Textbox(
+                                label="Response", lines=1, interactive=False
+                            )
+
             with gr.Row():
                 send_to_buttons = (
                     modules.generation_parameters_copypaste.create_buttons(
@@ -390,8 +541,32 @@ def on_ui_tabs():
         load_model_btn.style(size="sm")
         unload_model_btn.style(size="sm")
 
-        msg.submit(respond, [msg, chatbot, input_image,input_dir,output_dir,extension,save_csv,save_txt,nucleus_sampling,length_penalty,repetition_penalty,temperature,num_beams,max_length,min_length,top_p,num_captions,num_captions_VQA,num_patches,top_k,],
-                    [msg, chatbot])
+        msg.submit(
+            respond,
+            [
+                msg,
+                chatbot,
+                input_image,
+                input_dir,
+                output_dir,
+                extension,
+                save_csv,
+                save_txt,
+                nucleus_sampling,
+                length_penalty,
+                repetition_penalty,
+                temperature,
+                num_beams,
+                max_length,
+                min_length,
+                top_p,
+                num_captions,
+                num_captions_VQA,
+                num_patches,
+                top_k,
+            ],
+            [msg, chatbot],
+        )
         clear.click(lambda: None, None, chatbot, queue=False)
 
         btn_caption_single.click(
@@ -448,9 +623,8 @@ def on_ui_tabs():
             ],
             outputs=[output_text_batch],
         )
-        
-        return [(blip2, "BLIP2", "blip2")]
 
+        return [(blip2, "BLIP2", "blip2")]
 
 
 def on_ui_settings():
@@ -467,8 +641,17 @@ def on_ui_settings():
         ),
     )
 
+
 script_callbacks.on_ui_tabs(on_ui_tabs)
 script_callbacks.on_ui_settings(on_ui_settings)
 
+
 def chat_history_to_prompt(chat_history):
-    return "".join(list(map(lambda qa : "Question: {} Answer: {}. ".format(qa[0], qa[1]), chat_history)))
+    return "".join(
+        list(
+            map(
+                lambda qa: "Question: {} Answer: {}. ".format(qa[0], qa[1]),
+                chat_history,
+            )
+        )
+    )

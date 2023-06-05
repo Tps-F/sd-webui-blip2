@@ -21,7 +21,7 @@ Open "Extensions" -> "Install from URL" paste the link below
 ### LAVIS
 If you receive the message "Can't install salesforce-lavis" please follow the steps below.
 
-Windows: Open powershell on your-stable-diffusion-webui location and type
+Windows: Open powershell with admin on your-stable-diffusion-webui location and type
 
     Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force 
     ./venv/scripts/activate

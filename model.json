@@ -27,6 +27,10 @@
         {
             "name": "blip2_t5",
             "type": "caption_coco_flant5xl"
+        },
+        {
+            "name": "blip_vqa",
+            "type": "vqav2"
         }
     ]
 }

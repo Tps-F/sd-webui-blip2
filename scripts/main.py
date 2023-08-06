@@ -116,6 +116,7 @@ def prepare(image, process_type, input_dir, output_dir, extension, save_csv, sav
 
         for image in images:
             image_filename = os.path.splitext(os.path.basename(image))
+            image_dir = os.path.dirname(image)
             raw = Image.open(image).convert('RGB')
             caption = gen_caption(raw, process_type, caption_type, length_penalty, repetition_penalty, temperature)
             if not save_csv and not save_txt:
@@ -124,7 +125,7 @@ def prepare(image, process_type, input_dir, output_dir, extension, save_csv, sav
                 if save_csv:
                     save_csv_f(caption, output_dir, image_filename)
                 if save_txt:
-                    save_txt_f(caption, output_dir, image_filename)
+                    save_txt_f(caption, image_dir, image_filename)
                
                 
         return "Finish!"

@@ -246,12 +246,12 @@ def on_ui_tabs():
             output_text = gr.Textbox(label="Answer", lines=5, interactive=False)
             with gr.Row():
                 send_to_buttons = (
-                    modules.generation_parameters_copypaste.create_buttons(
+                    modules.infotext_utils.create_buttons(
                         ["txt2img", "img2img", "extras"]
                     )
                 )
 
-        modules.generation_parameters_copypaste.bind_buttons(
+        modules.infotext_utils.bind_buttons(
             send_to_buttons, "", output_text
         )
 

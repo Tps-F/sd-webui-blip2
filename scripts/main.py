@@ -32,7 +32,7 @@ def load_data(file_name: str = f"{scripts.basedir()}/model.json") -> dict:
     print("Loading data...")
     data = {}
 
-    with open(file_name, "r") as f:
+    with open(file_name, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     return data
